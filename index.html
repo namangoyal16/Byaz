@@ -19,75 +19,98 @@ html{color-scheme:light}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
 [hidden]{display:none!important}
-/* Layout: one narrow phone column. Date check and total due on top, add-entry form, then a dated ledger that reads like a bahi-khata page. */
+/* Layout: one narrow phone column. Brand header, mode switch, big total card with coin art, add-entry form, then the ledger as a dated timeline. */
 :root{
-  --bg:#f4f3f5; --card:#ffffff; --ink:#1d1a20; --muted:#6a6470; --line:#e2dfe6;
-  --accent:#8a2a3a; --accent-ink:#ffffff;
-  --out:#8a2a3a; --out-bg:#f6e6e9; --in:#1b7048; --in-bg:#e0f1e8;
-  --hero-bg:#7d2433; --hero-ink:#ffffff; --hero-muted:#efcdd3; --hero-tile:rgba(255,255,255,.13);
-  --focus:#2d6cdf; --warn:#9a5b00; --warn-bg:#fbf0dc;
+  --bg:#f6f2f4; --bg-top:#efe2e6; --card:#ffffff; --field:#fbf9fa; --ink:#211a23; --muted:#6d6573; --line:#e7e0e5;
+  --accent:#8a2a3a; --accent-2:#661a2a; --accent-ink:#ffffff; --gold:#c9972f; --gold-soft:rgba(201,151,47,.22);
+  --out:#8a2a3a; --out-bg:#f7e7ea; --in:#17704a; --in-bg:#dff1e7;
+  --hero-from:#8d2d3f; --hero-to:#4e1120; --hero-ink:#ffffff; --hero-muted:#f1d3d9; --hero-tile:rgba(255,255,255,.14);
+  --shadow:0 1px 2px rgba(60,20,35,.06),0 10px 28px rgba(60,20,35,.07);
+  --focus:#2d6cdf; --ring:rgba(138,42,58,.18);
   --font-body:'Inter','Noto Sans Devanagari',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --font-head:'Space Grotesk','Noto Sans Devanagari','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
+:root[data-mode="borrower"]{
+  --accent:#1c5a6c; --accent-2:#123f4d; --out:#1c5a6c; --out-bg:#e0eef2; --ring:rgba(28,90,108,.2);
+  --hero-from:#21596b; --hero-to:#0f2f3b; --hero-muted:#c9e1e8; --bg-top:#dfeaee;
+}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#151317; --card:#1f1c22; --ink:#efebf1; --muted:#a59eab; --line:#34303a;
-    --accent:#e58a9a; --accent-ink:#2a0d14;
+    --bg:#141216; --bg-top:#241821; --card:#1d1a20; --field:#26222a; --ink:#efebf1; --muted:#a59eab; --line:#363139;
+    --accent:#e58a9a; --accent-2:#c9677a; --accent-ink:#2a0d14;
     --out:#e58a9a; --out-bg:#3a2229; --in:#63c795; --in-bg:#1c3328;
-    --hero-bg:#3b1f28; --hero-ink:#fbeff1; --hero-muted:#d7aab3; --hero-tile:rgba(255,255,255,.08);
-    --focus:#7aa7ff; --warn:#e0a24a; --warn-bg:#352a15;
+    --hero-from:#5a1c2c; --hero-to:#2b0b14; --hero-muted:#dcaeb7; --hero-tile:rgba(255,255,255,.09);
+    --shadow:0 1px 2px rgba(0,0,0,.4); --focus:#7aa7ff; --ring:rgba(229,138,154,.25);
     color-scheme:dark;
+  }
+  :root[data-mode="borrower"]:not([data-theme="light"]){
+    --accent:#7cc3d6; --accent-2:#4fa3bb; --accent-ink:#0b2a33; --out:#7cc3d6; --out-bg:#1a3640; --ring:rgba(124,195,214,.25);
+    --hero-from:#1b4a59; --hero-to:#0a2029; --hero-muted:#b4d3dc; --bg-top:#15262c;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#151317; --card:#1f1c22; --ink:#efebf1; --muted:#a59eab; --line:#34303a;
-  --accent:#e58a9a; --accent-ink:#2a0d14;
+  --bg:#141216; --bg-top:#241821; --card:#1d1a20; --field:#26222a; --ink:#efebf1; --muted:#a59eab; --line:#363139;
+  --accent:#e58a9a; --accent-2:#c9677a; --accent-ink:#2a0d14;
   --out:#e58a9a; --out-bg:#3a2229; --in:#63c795; --in-bg:#1c3328;
-  --hero-bg:#3b1f28; --hero-ink:#fbeff1; --hero-muted:#d7aab3; --hero-tile:rgba(255,255,255,.08);
-  --focus:#7aa7ff; --warn:#e0a24a; --warn-bg:#352a15;
+  --hero-from:#5a1c2c; --hero-to:#2b0b14; --hero-muted:#dcaeb7; --hero-tile:rgba(255,255,255,.09);
+  --shadow:0 1px 2px rgba(0,0,0,.4); --focus:#7aa7ff; --ring:rgba(229,138,154,.25);
   color-scheme:dark;
 }
-body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body)}
+:root[data-theme="dark"][data-mode="borrower"]{
+  --accent:#7cc3d6; --accent-2:#4fa3bb; --accent-ink:#0b2a33; --out:#7cc3d6; --out-bg:#1a3640; --ring:rgba(124,195,214,.25);
+  --hero-from:#1b4a59; --hero-to:#0a2029; --hero-muted:#b4d3dc; --bg-top:#15262c;
+}
+body{background-color:var(--bg);background-image:linear-gradient(180deg,var(--bg-top),var(--bg) 320px);background-repeat:no-repeat;color:var(--ink);font:15px/1.5 var(--font-body)}
 *{box-sizing:border-box}
-.app{max-width:560px;margin:0 auto;display:grid;gap:16px;padding-block:16px 48px;
+.app{max-width:560px;margin:0 auto;display:grid;gap:16px;padding-block:18px 56px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .app>*{min-width:0}
 .inner{display:grid;gap:16px;min-width:0}
 .inner>*{min-width:0}
 h1,h2{font-family:var(--font-head);margin:0;text-wrap:balance}
-h1{font-size:22px;font-weight:700;letter-spacing:-.01em}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
 h2{font-size:16px;font-weight:700}
-.top{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand img{width:44px;height:44px;border-radius:13px;flex:none;box-shadow:0 3px 10px rgba(70,15,30,.3)}
+.tagline{margin:2px 0 0;font-size:12px;color:var(--muted)}
 .topright{display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap}
 .sync{font-size:12px;color:var(--muted)}
 button{font:inherit;cursor:pointer}
 .link{background:none;border:0;color:var(--accent);padding:8px 4px;min-height:44px;font-weight:600}
-.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;transition:transform .08s ease,box-shadow .15s ease}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:var(--accent-ink);box-shadow:0 4px 12px var(--ring)}
 .btn.danger{color:var(--out)}
 .btn.small{min-height:36px;padding:0 12px;font-size:13px}
-.langsw{display:inline-grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.langsw button{border:0;background:var(--card);color:var(--muted);padding:0 12px;min-height:36px;font-weight:600;font-size:14px}
+.langsw{display:inline-grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.langsw button{border:0;background:none;color:var(--muted);padding:0 12px;min-height:36px;font-weight:600;font-size:14px}
 .langsw button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 label.f{display:grid;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
 input[type=text],input[type=date],select,textarea{
-  width:100%;min-height:44px;padding:8px 12px;font:inherit;font-size:16px;color:var(--ink);
-  background:var(--card);border:1px solid var(--line);border-radius:8px}
+  width:100%;min-height:46px;padding:8px 12px;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--field);border:1px solid var(--line);border-radius:12px}
+input[type=text]:focus,input[type=date]:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
 textarea{min-height:140px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
 input.bad{border-color:var(--out)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:380px){.row2{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
 .stack{display:grid;gap:12px}
 .bar{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .hint{font-size:12px;color:var(--muted);margin:0}
-.notice{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:13px;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
-.hero{background:var(--hero-bg);color:var(--hero-ink);border-radius:12px;padding:18px 16px;display:grid;gap:8px}
-.hero .lbl{font-size:13px;color:var(--hero-muted);overflow-wrap:anywhere}
+.modesw{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.modesw button{border:0;border-radius:10px;background:none;color:var(--muted);min-height:44px;font-weight:600;font-size:15px;transition:background .15s ease}
+.modesw button[aria-pressed=true]{background:linear-gradient(135deg,var(--hero-from),var(--hero-to));color:var(--hero-ink)}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--hero-from),var(--hero-to));color:var(--hero-ink);border-radius:20px;padding:18px 16px;display:grid;gap:8px;box-shadow:0 12px 30px rgba(60,12,25,.28)}
+.hero>*{position:relative;z-index:1}
+.hero::before{content:"";position:absolute;right:-70px;bottom:-90px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.13),transparent 68%)}
+.hero>.hero-art{position:absolute;z-index:0;right:-6px;top:-4px;width:132px;height:auto;pointer-events:none}
+.hero .lbl{font-size:13px;color:var(--hero-muted);overflow-wrap:anywhere;padding-right:104px;min-height:48px}
 .hero .big{font-family:var(--font-head);font-weight:700;font-size:clamp(30px,10vw,42px);letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;line-height:1.15}
 .pi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 0}
-.pi div{background:var(--hero-tile);border-radius:8px;padding:10px 12px;min-width:0}
+.pi div{background:var(--hero-tile);border-radius:12px;padding:10px 12px;min-width:0}
 .pi dt{font-size:12px;color:var(--hero-muted)}
 .pi dd{margin:2px 0 0;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .hero .sub{font-size:13px;color:var(--hero-muted)}
@@ -95,16 +118,20 @@ input.bad{border-color:var(--out)}
 .stats div{min-width:0}
 .stats dt{font-size:12px;color:var(--hero-muted)}
 .stats dd{margin:2px 0 0;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--field)}
 .seg input{position:absolute;opacity:0;pointer-events:none}
-.seg label{display:block;text-align:center;padding:11px 8px;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted)}
+.seg label{display:block;text-align:center;padding:12px 8px;font-weight:600;cursor:pointer;background:none;color:var(--muted)}
 .seg input:checked+label.lent{background:var(--out-bg);color:var(--out)}
 .seg input:checked+label.recv{background:var(--in-bg);color:var(--in)}
 .seg input:focus-visible+label{outline:2px solid var(--focus);outline-offset:-2px}
 .err{color:var(--out);font-size:13px;min-height:1em}
 .ledger,.loans{list-style:none;margin:0;padding:0}
-.entry{padding:12px 0;border-top:1px solid var(--line)}
-.entry:first-child{border-top:0;padding-top:0}
+.entry{position:relative;padding:10px 0 14px 26px}
+.entry::before{content:"";position:absolute;left:0;top:15px;width:12px;height:12px;border-radius:50%;background:var(--out);box-shadow:0 0 0 4px var(--out-bg)}
+.entry.recv::before{background:var(--in);box-shadow:0 0 0 4px var(--in-bg)}
+.entry.now::before{background:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
+.entry::after{content:"";position:absolute;left:5px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+.entry:last-child::after{display:none}
 .rtop{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 .rdate{font-weight:600}
 .tag{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px}
@@ -119,27 +146,30 @@ input.bad{border-color:var(--out)}
 .state b{font-weight:600}
 .note{font-size:13px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
 .acts{display:flex;gap:4px;margin-top:6px}
-.acts button{background:none;border:0;color:var(--accent);font-size:13px;font-weight:600;padding:8px 10px;min-height:36px;border-radius:6px}
+.acts button{background:none;border:0;color:var(--accent);font-size:13px;font-weight:600;padding:8px 10px;min-height:36px;border-radius:8px}
 .acts button.del{color:var(--out)}
-.tail{background:var(--bg);border-radius:8px;padding:10px 12px;margin-top:4px}
+.tail{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:4px}
 .loan{padding:10px 0;border-top:1px solid var(--line)}
 .loan:first-child{border-top:0;padding-top:0}
 details.card summary{cursor:pointer;font-weight:700;font-family:var(--font-head);min-height:28px}
 details.card[open] summary{margin-bottom:12px}
-.empty{text-align:center;color:var(--muted);padding:24px 8px}
-.modesw{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:12px}
-.modesw button{border:0;border-radius:9px;background:none;color:var(--muted);min-height:44px;font-weight:600;font-size:15px}
-.modesw button[aria-pressed=true]{background:var(--hero-bg);color:var(--hero-ink)}
-:root[data-mode="borrower"]{--hero-bg:#1c4d5c;--hero-muted:#c3dde5}
-@media (prefers-color-scheme: dark){:root[data-mode="borrower"]:not([data-theme="light"]){--hero-bg:#163640;--hero-muted:#a9c7d1}}
-:root[data-theme="dark"][data-mode="borrower"]{--hero-bg:#163640;--hero-muted:#a9c7d1}
+.empty{text-align:center;color:var(--muted);padding:8px 8px 20px;display:grid;justify-items:center;gap:6px}
+.empty img{width:min(280px,84%);height:auto}
+.empty p{margin:0;max-width:30ch}
+@media (prefers-reduced-motion: reduce){.btn,.modesw button{transition:none}}
 </style>
 </head>
 <body>
 
 <div class="app">
   <header class="top">
-    <h1 data-i18n="title">Byaz Calculator</h1>
+    <div class="brand">
+      <img src="icon-192.png" alt="" width="44" height="44">
+      <div>
+        <h1 data-i18n="title">Byaz Calculator</h1>
+        <p class="tagline" data-i18n="tagline">Simple interest ledger</p>
+      </div>
+    </div>
     <div class="topright">
       <div class="langsw" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">English</button>
@@ -165,7 +195,7 @@ details.card[open] summary{margin-bottom:12px}
     </div>
     <div id="newPerson" class="card stack" hidden>
       <label class="f" for="newName"><span data-i18n="newNameLbl">Name of the person you lent to</span>
-        <input id="newName" type="text" maxlength="60" autocomplete="off" data-i18n-ph="newNamePh" placeholder="For example Ramesh">
+        <input id="newName" type="text" maxlength="60" autocomplete="off">
       </label>
       <div class="err" id="newErr" role="alert"></div>
       <div style="display:flex;gap:8px">
@@ -175,11 +205,9 @@ details.card[open] summary{margin-bottom:12px}
     </div>
   </section>
 
-  <div id="empty" class="empty" hidden data-i18n="emptyMsg">No one added yet. Tap “+ New” to start a ledger.</div>
+  <div id="empty" class="empty" hidden><img src="empty-art.png" alt="" width="480" height="300"><p id="emptyMsg"></p></div>
 
   <main id="main" class="inner">
-    <div id="sampleNote"></div>
-
     <section class="card stack" aria-label="Check any date" data-i18n-aria="checkTitle">
       <h2 data-i18n="checkTitle">Check any date</h2>
       <div class="bar">
@@ -200,18 +228,18 @@ details.card[open] summary{margin-bottom:12px}
       </div>
       <div class="row2">
         <label class="f" for="eDate"><span data-i18n="date">Date</span><input id="eDate" type="date" required></label>
-        <label class="f" for="eAmt"><span data-i18n="amount">Amount (₹)</span><input id="eAmt" type="text" inputmode="decimal" autocomplete="off" placeholder="50000"></label>
+        <label class="f" for="eAmt"><span data-i18n="amount">Amount (₹)</span><input id="eAmt" type="text" inputmode="decimal" autocomplete="off"></label>
       </div>
       <div id="rateRow" class="stack">
         <div class="row2">
-          <label class="f" for="eRate"><span data-i18n="rate">Interest rate (%)</span><input id="eRate" type="text" inputmode="decimal" autocomplete="off" placeholder="2"></label>
+          <label class="f" for="eRate"><span data-i18n="rate">Interest rate (%)</span><input id="eRate" type="text" inputmode="decimal" autocomplete="off"></label>
           <label class="f" for="eUnit"><span data-i18n="rateIs">Rate is</span>
             <select id="eUnit"><option value="month" data-i18n="perMonth">per month</option><option value="year" data-i18n="perYear">per year</option></select>
           </label>
         </div>
-        <p class="hint" data-i18n="rateHelp">Set the rate for this loan now. It stays with this loan.</p>
+        <p class="hint" data-i18n="rateHelp">Enter the rate for this loan now. It stays with this loan.</p>
       </div>
-      <label class="f" for="eNote"><span data-i18n="note">Note (optional)</span><input id="eNote" type="text" maxlength="120" autocomplete="off" data-i18n-ph="notePh" placeholder="Cash, UPI, for shop rent…"></label>
+      <label class="f" for="eNote"><span data-i18n="note">Note (optional)</span><input id="eNote" type="text" maxlength="120" autocomplete="off"></label>
       <div class="err" id="formErr" role="alert"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button id="btnSave" class="btn primary" type="submit" data-i18n="addEntry">Add entry</button>
@@ -235,7 +263,7 @@ details.card[open] summary{margin-bottom:12px}
           </select>
         </label>
         <p class="hint" data-i18n="hintOldest">Money received is applied to the oldest loan first. Every loan keeps the rate you set when you lent it.</p>
-        <p class="hint" data-i18n="hintSimple">Simple interest only. Days are counted from the entry date to the next entry date, so 1 Aug to 3 Aug is 2 days. Unpaid interest does not earn interest. Each period is rounded to the nearest paisa so every line adds up.</p>
+        <p class="hint" data-i18n="hintSimple">Simple interest.</p>
         <div><button id="btnDelPerson" class="btn danger small" type="button" data-i18n="delPerson">Delete this person</button></div>
       </div>
     </details>
@@ -243,7 +271,7 @@ details.card[open] summary{margin-bottom:12px}
 
   <section id="backup" class="card stack" hidden>
     <h2 data-i18n="bkTitle">Backup</h2>
-    <p class="hint" data-i18n="bkHint">Copy this text and keep it somewhere safe (notes, chat with yourself). To restore, paste a backup here and tap Restore.</p>
+    <p class="hint" data-i18n="bkHint">Copy this text and keep it somewhere safe.</p>
     <textarea id="bkText" aria-label="Backup text" data-i18n-aria="bkAria" spellcheck="false"></textarea>
     <div class="err" id="bkMsg" role="status"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -266,77 +294,94 @@ function dayNum(s){
   var p=s.split('-').map(Number);
   return Math.round(Date.UTC(p[0],p[1]-1,p[2])/86400000);
 }
-function rpdOf(rate,unit){
-  var r=rate/100;
-  return unit==='year' ? r/365 : r/30;
+function dayToYMD(n){var d=new Date(n*86400000);return [d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()];}
+function dayStr(n){var a=dayToYMD(n);return a[0]+'-'+('0'+(a[1]+1)).slice(-2)+'-'+('0'+a[2]).slice(-2);}
+function monthLen(y,m){return new Date(Date.UTC(y,m+1,0)).getUTCDate();}
+/* Add k calendar months to a day number. If the month is shorter, use its last day. */
+function addMonths(day,k){
+  var a=dayToYMD(day);
+  var y=a[0],m=a[1]+k;
+  y+=Math.floor(m/12); m=((m%12)+12)%12;
+  return Math.round(Date.UTC(y,m,Math.min(a[2],monthLen(y,m)))/86400000);
 }
-/* Every "lent" entry is its own loan with its own rate. Received money goes to the oldest loan first. */
+function monthlyRate(rate,unit){return unit==='year'?rate/12:rate;}
+/* Interest on principal P (in paise) from day `from` to day `to`, both days counted.
+   Complete calendar months count as months. Days left over count as 1/30 of a month each. */
+function span(P,rate,unit,from,to){
+  var endEx=to+1;
+  if(endEx<=from) return {months:0,days:0,interest:0};
+  var a=dayToYMD(from),b=dayToYMD(endEx);
+  var m=(b[0]-a[0])*12+(b[1]-a[1]);
+  while(m>0&&addMonths(from,m)>endEx) m--;
+  var days=endEx-addMonths(from,m);
+  var interest=Math.round(P*monthlyRate(rate,unit)*(30*m+days)/3000+1e-6);
+  return {months:m,days:days,interest:interest};
+}
+/* Every "lent" entry is its own loan with its own rate. Received money goes to the oldest loan first.
+   Interest is counted through the day of each payment. After a payment reduces the principal,
+   the new principal starts earning from the next day. */
 function compute(acc, asOf){
   var end=dayNum(asOf);
   var list=acc.entries.map(function(e,i){return {e:e,i:i,d:dayNum(e.date)};})
     .filter(function(x){return x.d<=end;})
     .sort(function(a,b){return a.d-b.d||a.i-b.i;});
-  var loans=[],credit=0,prev=null,lent=0,recv=0,earned=0;
-  var rows=[];
-  function sums(){
-    var P=0,I=0;
-    loans.forEach(function(L){P+=L.P;I+=L.I;});
-    return {P:P,I:I};
-  }
-  function accrue(toDay){
-    if(prev===null) return null;
-    var days=toDay-prev;
-    if(days<=0) return null;
-    var items=[],total=0;
+  var loans=[],credit=0,lent=0,recv=0,rows=[];
+  function accrued(L,day){return L.closed+(L.P>0?span(L.P,L.rate,L.unit,L.from,day).interest:0);}
+  function pending(L,day){return Math.max(0,accrued(L,day)-L.paid);}
+  function pendingAll(day){var s=0;loans.forEach(function(L){s+=pending(L,day);});return s;}
+  function principalAll(){var s=0;loans.forEach(function(L){s+=L.P;});return s;}
+  function periods(day){
+    var groups={},order=[];
     loans.forEach(function(L){
-      if(L.P>0){
-        var interest=Math.round(L.P*L.rpd*days);
-        L.I+=interest; earned+=interest; total+=interest;
-        items.push({days:days,base:L.P,perDay:L.P*L.rpd,interest:interest,rate:L.rate,unit:L.unit,date:L.date});
-      }
+      if(L.P<=0) return;
+      var s=span(L.P,L.rate,L.unit,L.from,day);
+      if(s.months===0&&s.days===0) return;
+      var k=L.from+'|'+L.rate+'|'+L.unit;
+      if(!groups[k]){groups[k]={from:L.from,to:day,months:s.months,days:s.days,rate:L.rate,unit:L.unit,base:0,interest:0};order.push(k);}
+      groups[k].base+=L.P; groups[k].interest+=s.interest;
     });
-    return items.length?{days:days,items:items,interest:total}:null;
-  }
-  function payInterest(rest){
-    var paid=0;
-    loans.forEach(function(L){var p=Math.min(rest-paid,L.I);L.I-=p;paid+=p;});
-    return paid;
-  }
-  function payPrincipal(rest){
-    var paid=0;
-    loans.forEach(function(L){var p=Math.min(rest-paid,L.P);L.P-=p;paid+=p;});
-    return paid;
+    return order.map(function(k){return groups[k];});
   }
   list.forEach(function(x){
-    var e=x.e;
-    var gap=accrue(x.d);
-    var paidI=0,paidP=0,extra=0;
+    var e=x.e,D=x.d,shown=null,paidI=0,paidP=0,extra=0,I;
     if(e.type==='lent'){
       lent+=e.amt;
       var use=Math.min(credit,e.amt); credit-=use;
-      loans.push({id:e.id,date:e.date,amt:e.amt,rate:e.rate,unit:e.unit,rpd:rpdOf(e.rate,e.unit),P:e.amt-use,I:0});
+      loans.push({date:e.date,amt:e.amt,rate:e.rate,unit:e.unit,P:e.amt-use,closed:0,paid:0,from:D});
+      I=pendingAll(D-1);
     } else {
       recv+=e.amt;
+      shown=periods(D);
       var rest=e.amt;
-      if(acc.alloc==='principal'){
-        paidP=payPrincipal(rest); rest-=paidP;
-        paidI=payInterest(rest); rest-=paidI;
-      } else {
-        paidI=payInterest(rest); rest-=paidI;
-        paidP=payPrincipal(rest); rest-=paidP;
-      }
+      var payInt=function(){
+        loans.forEach(function(L){
+          if(rest<=0) return;
+          var p=Math.min(rest,pending(L,D));
+          if(p>0){L.paid+=p;rest-=p;paidI+=p;}
+        });
+      };
+      var payPri=function(){
+        loans.forEach(function(L){
+          if(rest<=0||L.P<=0) return;
+          var p=Math.min(rest,L.P);
+          L.closed+=span(L.P,L.rate,L.unit,L.from,D).interest;
+          L.from=D+1; L.P-=p; rest-=p; paidP+=p;
+        });
+      };
+      if(acc.alloc==='principal'){payPri();payInt();}else{payInt();payPri();}
       extra=rest; credit+=extra;
+      I=pendingAll(D);
     }
-    prev=x.d;
-    var s=sums();
-    rows.push({entry:e,gap:gap,P:s.P,I:s.I,credit:credit,paidI:paidI,paidP:paidP,extra:extra});
+    rows.push({entry:e,periods:shown,P:principalAll(),I:I,credit:credit,paidI:paidI,paidP:paidP,extra:extra});
   });
-  var tail=accrue(end);
-  var f=sums();
-  var perDay=0;
-  loans.forEach(function(L){if(L.P>0) perDay+=L.P*L.rpd;});
-  return {rows:rows,tail:tail,P:f.P,I:f.I,credit:credit,due:f.P+f.I-credit,perDay:perDay,
-    loans:loans.map(function(L){return {date:L.date,amt:L.amt,rate:L.rate,unit:L.unit,P:L.P,I:L.I};}),
+  var tail=periods(end);
+  var P=principalAll(),I=pendingAll(end),earned=0,perDay=0;
+  loans.forEach(function(L){
+    earned+=accrued(L,end);
+    if(L.P>0) perDay+=L.P*monthlyRate(L.rate,L.unit)/100/30;
+  });
+  return {rows:rows,tail:tail,P:P,I:I,credit:credit,due:P+I-credit,perDay:perDay,
+    loans:loans.map(function(L){return {date:L.date,amt:L.amt,rate:L.rate,unit:L.unit,P:L.P,I:pending(L,end)};}),
     lent:lent,recv:recv,earned:earned,counted:list.length};
 }
 /*CALC-END*/
@@ -345,18 +390,18 @@ function compute(acc, asOf){
 var LANG='en';
 var T={
 en:{
- title:'Byaz Calculator',backup:'Backup',person:'Person',newBtn:'+ New',
- newNameLbl:'Name of the person you lent to',newNamePh:'For example Ramesh',addPerson:'Add person',cancel:'Cancel',
- emptyMsg:'No one added yet. Tap “+ New” to start a ledger.',
+ title:'Byaz Calculator',tagline:'Simple interest ledger',backup:'Backup',person:'Person',newBtn:'+ New',
+ newNameLbl:'Name of the person you lent to',addPerson:'Add person',cancel:'Cancel',
+ emptyMsg:'No one added yet. Tap “+ New” to start.',
  checkTitle:'Check any date',checkLbl:'Principal and interest up to',today:'Today',
  addEntry:'Add entry',editEntry:'Edit entry',lent:'I lent',received:'I received',
  date:'Date',amount:'Amount (₹)',rate:'Interest rate (%)',rateIs:'Rate is',perMonth:'per month',perYear:'per year',
- rateHelp:'Set the rate for this loan now. It stays with this loan.',
- note:'Note (optional)',notePh:'Cash, UPI, for shop rent…',saveChanges:'Save changes',cancelEdit:'Cancel edit',
+ rateHelp:'Enter the rate for this loan now. It stays with this loan.',
+ note:'Note (optional)',saveChanges:'Save changes',cancelEdit:'Cancel edit',
  ledger:'Ledger',settingsTitle:'Name and rules',name:'Name',whenReceived:'When money is received',
  allocInterest:'Pay pending interest first, then principal',allocPrincipal:'Reduce principal first, then interest',
  hintOldest:'Money received is applied to the oldest loan first. Every loan keeps the rate you set when you lent it.',
- hintSimple:'Simple interest only. Days are counted from the entry date to the next entry date, so 1 Aug to 3 Aug is 2 days. Unpaid interest does not earn interest. Each period is rounded to the nearest paisa so every line adds up.',
+ hintSimple:'Simple interest only, no interest on interest. Complete months are counted as months, so 2% per month for 12 months is exactly 24%. Days left over are counted as 1/30 of a month each. For a yearly rate, one month is 1/12 of the yearly rate. The first and last day are both counted (1 Nov to 15 Nov = 15 days). Each amount is rounded to the nearest paisa.',
  delPerson:'Delete this person',delPersonConfirm:'Tap again to delete everything for this person',
  bkTitle:'Backup',bkHint:'Copy this text and keep it somewhere safe (notes, chat with yourself). To restore, paste a backup here and tap Restore.',
  bkAria:'Backup text',copyBk:'Copy backup',downloadBk:'Download backup file',chooseFile:'Load backup file',restoreBk:'Restore from text',close:'Close',
@@ -371,18 +416,18 @@ en:{
  perDayNow:'Interest per day now',interestSoFar:'Interest so far',totalLent:'Total lent',totalReceived:'Total received',
  tagLent:'Lent',tagRecv:'Received',interestPaid:'Interest paid',principalPaid:'Principal paid',extraPaid:'Extra (overpaid)',
  principalNow:'Principal now',edit:'Edit',del:'Delete',delConfirm:'Tap again to delete',
- upTo:'Up to {date}',noNewInterest:'No new interest since the last entry.',
- noEntries:'No entries yet. Add the first amount you lent above.',
+ upTo:'Up to {date}',noNewInterest:'No interest to count yet.',
+ noEntries:'No entries yet. Add the first one above.',
  notCounted:'{n} entries dated after {date} are not counted yet.',notCountedOne:'1 entry dated after {date} is not counted yet.',
- sampleNote:'This is sample data so you can see how it works.',delSample:'Delete sample',sampleName:'Sample: Ramesh',
- gap:'<b>{n} {days}</b> on {base} at {rate} ({perDay}/day) = <b>{interest}</b> interest',
- day:'day',days:'days',perMonthLbl:'per month',perYearLbl:'per year',
+ gap:'{from} to {to}: <b>{period}</b> on {base} at {rate} = <b>{interest}</b> interest',
+ month:'month',months:'months',day:'day',days:'days',perMonthLbl:'per month',perYearLbl:'per year',
  loanByLoan:'Loan by loan',principalLeft:'Principal left',
- errDate:'Pick a valid date.',errAmt:'Enter an amount above 0, like 5000 or 5000.50.',
- errRate:'Enter the interest rate for this loan, like 2 or 1.5.',errName:'Enter a name.',
+ errDate:'Pick a valid date.',errAmt:'Enter an amount above 0.',
+ errRate:'Enter the interest rate for this loan.',errName:'Enter a name.',
  copied:'Copied.',selectCopy:'Select and copy the text above.',bkInvalid:'That text is not a valid backup.',
  restoreConfirmBtn:'Tap again to replace current data',
  restoreMsg:'This replaces everything now in the app with {n} from the backup.',restored:'Restored.',
+ personsOne:'1 person',personsMany:'{n} people',
  modeAria:'Mode',modeLender:'Lender',modeBorrower:'Customer',
  modeHint:'You gave money to others and earn interest on it.',
  modeHint_b:'You took money from someone and owe interest on it.',
@@ -397,78 +442,73 @@ en:{
  overpaidSub_b:'You paid more than you owed. This amount is owed back to you.',
  totalLent_b:'Total borrowed',totalReceived_b:'Total paid back',
  tagLent_b:'Borrowed',tagRecv_b:'Paid back',
- noEntries_b:'No entries yet. Add the first amount you borrowed above.',
- sampleNameB:'Sample: Sunil',
- personsOne:'1 person',personsMany:'{n} people'
+ noEntries_b:'No entries yet. Add the first amount you borrowed above.'
 },
 hi:{
- title:'ब्याज कैलकुलेटर',backup:'बैकअप',person:'व्यक्ति',newBtn:'+ नया',
- newNameLbl:'जिसे आपने पैसे दिए उसका नाम',newNamePh:'जैसे रमेश',addPerson:'व्यक्ति जोड़ें',cancel:'रद्द करें',
- emptyMsg:'अभी कोई नहीं जुड़ा है। खाता शुरू करने के लिए “+ नया” दबाएँ।',
- checkTitle:'कोई भी तारीख देखें',checkLbl:'इस तारीख तक का मूलधन और ब्याज',today:'आज',
+ title:'ब्याज कैलकुलेटर',tagline:'सादा ब्याज का हिसाब',backup:'बैकअप',person:'किसका हिसाब',newBtn:'+ नया',
+ newNameLbl:'जिसे पैसे दिए उसका नाम',addPerson:'नाम जोड़ें',cancel:'कैंसिल',
+ emptyMsg:'अभी कोई नाम नहीं है। “+ नया” दबाकर शुरू करें।',
+ checkTitle:'किसी भी तारीख तक का हिसाब',checkLbl:'इस तारीख तक असल और ब्याज',today:'आज',
  addEntry:'एंट्री जोड़ें',editEntry:'एंट्री बदलें',lent:'मैंने दिया',received:'मुझे मिला',
- date:'तारीख',amount:'रकम (₹)',rate:'ब्याज दर (%)',rateIs:'दर',perMonth:'प्रति माह',perYear:'प्रति वर्ष',
- rateHelp:'इस उधार की दर अभी तय करें। यह दर इसी उधार के साथ रहेगी।',
- note:'टिप्पणी (वैकल्पिक)',notePh:'नकद, UPI, दुकान के किराए के लिए…',saveChanges:'बदलाव सहेजें',cancelEdit:'बदलाव रद्द करें',
- ledger:'खाता',settingsTitle:'नाम और नियम',name:'नाम',whenReceived:'पैसे मिलने पर',
- allocInterest:'पहले बाकी ब्याज चुकाएँ, फिर मूलधन',allocPrincipal:'पहले मूलधन घटाएँ, फिर ब्याज',
- hintOldest:'मिली रकम सबसे पुराने उधार पर पहले लगती है। हर उधार उसी दर पर चलता है जो आपने उधार देते समय तय की थी।',
- hintSimple:'सिर्फ़ साधारण ब्याज। दिन एंट्री की तारीख से अगली एंट्री की तारीख तक गिने जाते हैं, जैसे 1 अगस्त से 3 अगस्त = 2 दिन। बिना चुकाए ब्याज पर ब्याज नहीं लगता। हर अवधि का ब्याज नज़दीकी पैसे तक पूरा किया जाता है ताकि हर लाइन का जोड़ सही बैठे।',
- delPerson:'इस व्यक्ति को हटाएँ',delPersonConfirm:'इस व्यक्ति का सब कुछ हटाने के लिए फिर दबाएँ',
- bkTitle:'बैकअप',bkHint:'इस टेक्स्ट को कॉपी करके सुरक्षित जगह रखें (नोट्स, खुद को भेजा चैट)। वापस लाने के लिए बैकअप यहाँ पेस्ट करें और “टेक्स्ट से वापस लाएँ” दबाएँ।',
+ date:'तारीख',amount:'रकम (₹)',rate:'ब्याज रेट (%)',rateIs:'रेट',perMonth:'हर महीने',perYear:'हर साल',
+ rateHelp:'इस पैसे का रेट अभी डालें। यह रेट इसी पैसे के साथ रहेगा।',
+ note:'नोट (ज़रूरी नहीं)',saveChanges:'सेव करें',cancelEdit:'बदलाव कैंसिल करें',
+ ledger:'हिसाब',settingsTitle:'नाम और नियम',name:'नाम',whenReceived:'पैसे मिलने पर',
+ allocInterest:'पहले ब्याज काटें, फिर असल',allocPrincipal:'पहले असल काटें, फिर ब्याज',
+ hintOldest:'जो पैसा मिलता है वह सबसे पुराने उधार में पहले लगता है। हर उधार का रेट वही रहता है जो देते समय डाला था।',
+ hintSimple:'सिर्फ़ सादा ब्याज, ब्याज पर ब्याज नहीं। पूरे महीने महीने के हिसाब से गिने जाते हैं, जैसे हर महीने 2% पर 12 महीने = 24%। बचे हुए दिन, हर दिन महीने का 1/30 हिस्सा गिना जाता है। साल के रेट पर 1 महीना = साल के रेट का 1/12। पहला और आखिरी दोनों दिन गिने जाते हैं (1 नवंबर से 15 नवंबर = 15 दिन)। हर रकम नज़दीकी पैसे तक गोल की जाती है।',
+ delPerson:'यह नाम हटाएँ',delPersonConfirm:'इस नाम का सब कुछ हटाने के लिए फिर दबाएँ',
+ bkTitle:'बैकअप',bkHint:'यह टेक्स्ट कॉपी करके कहीं सुरक्षित रख लें (नोट्स में या खुद को भेज दें)। वापस लाने के लिए बैकअप यहाँ पेस्ट करें और “टेक्स्ट से वापस लाएँ” दबाएँ।',
  bkAria:'बैकअप टेक्स्ट',copyBk:'बैकअप कॉपी करें',downloadBk:'बैकअप फ़ाइल डाउनलोड करें',chooseFile:'बैकअप फ़ाइल चुनें',restoreBk:'टेक्स्ट से वापस लाएँ',close:'बंद करें',
- s_connecting:'जुड़ रहा है…',s_saving:'सहेज रहा है…',s_saved:'सिंक हुआ',s_local:'इस फ़ोन में सहेजा',s_error:'सिंक विफल',
- st_connecting:'आपके खाते के स्टोरेज से जुड़ रहा है',st_saving:'बदलाव सहेजे जा रहे हैं',
- st_saved:'आपके खाते में सहेजा गया, दूसरे डिवाइस पर भी दिखेगा',
- st_local:'इस फ़ोन में सहेजा गया। कॉपी रखने के लिए बैकअप का उपयोग करें।',
- st_error:'खाते में सहेज नहीं सका। बदलाव इस ब्राउज़र में रखे गए हैं।',
- totalDue:'{date} को कुल बकाया',overpaidOn:'{date} को ज़्यादा चुकाया',
- overpaidSub:'बकाया से ज़्यादा मिल चुका है। यह रकम आपको लौटानी है।',
- principal:'मूलधन',interestPending:'बाकी ब्याज',total:'कुल',
+ s_connecting:'जुड़ रहा है…',s_saving:'सेव हो रहा है…',s_saved:'सेव हो गया',s_local:'इस फ़ोन में सेव',s_error:'सेव नहीं हुआ',
+ st_connecting:'आपके खाते से जुड़ रहा है',st_saving:'बदलाव सेव हो रहे हैं',
+ st_saved:'आपके खाते में सेव हो गया, दूसरे फ़ोन पर भी दिखेगा',
+ st_local:'इस फ़ोन में सेव है। कॉपी रखने के लिए बैकअप करें।',
+ st_error:'खाते में सेव नहीं हो सका। बदलाव इस ब्राउज़र में रखे हैं।',
+ totalDue:'{date} तक कुल बाकी',overpaidOn:'{date} तक ज़्यादा मिला',
+ overpaidSub:'बाकी से ज़्यादा पैसे मिल चुके हैं। यह रकम लौटानी है।',
+ principal:'असल',interestPending:'बाकी ब्याज',total:'कुल',
  perDayNow:'अभी रोज़ का ब्याज',interestSoFar:'अब तक का ब्याज',totalLent:'कुल दिया',totalReceived:'कुल मिला',
- tagLent:'दिया',tagRecv:'मिला',interestPaid:'चुकाया ब्याज',principalPaid:'चुकाया मूलधन',extraPaid:'ज़्यादा चुकाया',
- principalNow:'अभी मूलधन',edit:'बदलें',del:'हटाएँ',delConfirm:'हटाने के लिए फिर दबाएँ',
- upTo:'{date} तक',noNewInterest:'पिछली एंट्री के बाद नया ब्याज नहीं।',
- noEntries:'अभी कोई एंट्री नहीं। ऊपर पहली दी हुई रकम जोड़ें।',
+ tagLent:'दिया',tagRecv:'मिला',interestPaid:'ब्याज में गया',principalPaid:'असल में गया',extraPaid:'ज़्यादा',
+ principalNow:'अभी असल',edit:'बदलें',del:'हटाएँ',delConfirm:'हटाने के लिए फिर दबाएँ',
+ upTo:'{date} तक',noNewInterest:'अभी गिनने लायक ब्याज नहीं है।',
+ noEntries:'अभी कोई एंट्री नहीं है। ऊपर से पहली एंट्री जोड़ें।',
  notCounted:'{date} के बाद की {n} एंट्री अभी नहीं गिनी गईं।',notCountedOne:'{date} के बाद की 1 एंट्री अभी नहीं गिनी गई।',
- sampleNote:'यह नमूना डेटा है ताकि आप देख सकें कि यह कैसे काम करता है।',delSample:'नमूना हटाएँ',sampleName:'नमूना: रमेश',
- gap:'<b>{n} {days}</b>, {base} पर, {rate} की दर से ({perDay}/दिन) = <b>{interest}</b> ब्याज',
- day:'दिन',days:'दिन',perMonthLbl:'प्रति माह',perYearLbl:'प्रति वर्ष',
- loanByLoan:'उधार-वार हिसाब',principalLeft:'बचा मूलधन',
- errDate:'सही तारीख चुनें।',errAmt:'0 से ज़्यादा रकम डालें, जैसे 5000 या 5000.50।',
- errRate:'इस उधार की ब्याज दर डालें, जैसे 2 या 1.5।',errName:'नाम डालें।',
- copied:'कॉपी हो गया।',selectCopy:'ऊपर का टेक्स्ट चुनकर कॉपी करें।',bkInvalid:'यह सही बैकअप नहीं है।',
- restoreConfirmBtn:'मौजूदा डेटा बदलने के लिए फिर दबाएँ',
- restoreMsg:'यह ऐप का सारा डेटा बैकअप के {n} से बदल देगा।',restored:'वापस ला दिया गया।',
- modeAria:'मोड',modeLender:'उधार देने वाला',modeBorrower:'ग्राहक',
- modeHint:'आपने दूसरों को पैसे दिए हैं और उन पर ब्याज कमाते हैं।',
- modeHint_b:'आपने किसी से पैसे लिए हैं और उन पर ब्याज चुकाना है।',
- person_b:'जिससे उधार लिया',newNameLbl_b:'जिससे आपने उधार लिया उसका नाम',
- emptyMsg_b:'अभी कोई नहीं जुड़ा है। जिससे उधार लिया उसे जोड़ने के लिए “+ नया” दबाएँ।',
- checkLbl_b:'इस तारीख तक मुझ पर मूलधन और ब्याज',
- lent_b:'मैंने उधार लिया',received_b:'मैंने चुकाया',
- rateHelp_b:'इस उधार की तय दर डालें। यह दर इसी उधार के साथ रहेगी।',
+ gap:'{from} से {to}: <b>{period}</b>, {base} पर {rate} = <b>{interest}</b> ब्याज',
+ month:'महीना',months:'महीने',day:'दिन',days:'दिन',perMonthLbl:'हर महीने',perYearLbl:'हर साल',
+ loanByLoan:'हर उधार का हिसाब',principalLeft:'बचा असल',
+ errDate:'सही तारीख चुनें।',errAmt:'0 से ज़्यादा रकम डालें।',
+ errRate:'इस पैसे का ब्याज रेट डालें।',errName:'नाम डालें।',
+ copied:'कॉपी हो गया।',selectCopy:'ऊपर का टेक्स्ट सेलेक्ट करके कॉपी करें।',bkInvalid:'यह सही बैकअप नहीं है।',
+ restoreConfirmBtn:'अभी का सारा डेटा बदलने के लिए फिर दबाएँ',
+ restoreMsg:'ऐप का सारा डेटा बैकअप के {n} से बदल जाएगा।',restored:'वापस आ गया।',
+ personsOne:'1 नाम',personsMany:'{n} नाम',
+ modeAria:'मोड',modeLender:'देने वाला',modeBorrower:'लेने वाला',
+ modeHint:'आपने दूसरों को पैसे दिए हैं और आपको ब्याज मिलता है।',
+ modeHint_b:'आपने किसी से पैसे लिए हैं और आपको ब्याज देना है।',
+ person_b:'किससे पैसे लिए',newNameLbl_b:'जिससे पैसे लिए उसका नाम',
+ emptyMsg_b:'अभी कोई नाम नहीं है। जिससे पैसे लिए उसे जोड़ने के लिए “+ नया” दबाएँ।',
+ checkLbl_b:'इस तारीख तक मुझे असल और ब्याज देना है',
+ lent_b:'मैंने लिया',received_b:'मैंने चुकाया',
+ rateHelp_b:'जो रेट तय हुआ वह डालें। यह रेट इसी पैसे के साथ रहेगा।',
  whenReceived_b:'जब मैं चुकाता हूँ',
- hintOldest_b:'आप जो रकम चुकाते हैं वह सबसे पुराने उधार पर पहले लगती है। हर उधार उसी दर पर चलता है जो उधार लेते समय तय हुई थी।',
- totalDue_b:'{date} को मुझ पर कुल बकाया',overpaidOn_b:'{date} को ज़्यादा चुकाया',
- overpaidSub_b:'आपने बकाया से ज़्यादा चुकाया है। यह रकम आपको वापस मिलनी है।',
- totalLent_b:'कुल उधार लिया',totalReceived_b:'कुल चुकाया',
- tagLent_b:'उधार लिया',tagRecv_b:'चुकाया',
- noEntries_b:'अभी कोई एंट्री नहीं। ऊपर पहली उधार ली हुई रकम जोड़ें।',
- sampleNameB:'नमूना: सुनील',
- personsOne:'1 व्यक्ति',personsMany:'{n} व्यक्ति'
+ hintOldest_b:'आप जो पैसा चुकाते हैं वह सबसे पुराने उधार में पहले लगता है। हर उधार का रेट वही रहता है जो लेते समय तय हुआ था।',
+ totalDue_b:'{date} तक मुझे कुल देना है',overpaidOn_b:'{date} तक ज़्यादा चुकाया',
+ overpaidSub_b:'आपने बाकी से ज़्यादा चुका दिया है। यह रकम आपको वापस मिलनी है।',
+ totalLent_b:'कुल लिया',totalReceived_b:'कुल चुकाया',
+ tagLent_b:'लिया',tagRecv_b:'चुकाया',
+ noEntries_b:'अभी कोई एंट्री नहीं है। ऊपर से पहली एंट्री जोड़ें।'
 }};
 var MONTHS={
  en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
- hi:['जन','फ़र','मार्च','अप्रै','मई','जून','जुल','अग','सित','अक्टू','नव','दिस']
+ hi:['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर']
 };
 function t(k,p){
   var s=(T[LANG]&&T[LANG][k]!==undefined)?T[LANG][k]:(T.en[k]!==undefined?T.en[k]:k);
   if(p) s=s.replace(/\{(\w+)\}/g,function(m,n){return p[n]!==undefined?p[n]:m;});
   return s;
 }
-
-/* In Customer mode a key may have a "_b" variant (for example lent_b = "I borrowed"). */
+/* In Customer mode a key may have a "_b" version (for example lent_b = "I borrowed"). */
 function tm(k,p){
   var kk=k+'_b';
   var has=(T[LANG]&&T[LANG][kk]!==undefined)||T.en[kk]!==undefined;
@@ -496,6 +536,12 @@ function inrDay(p){
   return '₹'+(p/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:4});
 }
 function rateLabel(rate,unit){return rate+'% '+t(unit==='year'?'perYearLbl':'perMonthLbl');}
+function periodText(m,d){
+  var parts=[];
+  if(m>0) parts.push(m+' '+t(m===1?'month':'months'));
+  if(d>0) parts.push(d+' '+t(d===1?'day':'days'));
+  return parts.join(' ');
+}
 function parseAmt(str){
   var s=String(str).replace(/[,\s₹]/g,'');
   if(!/^\d+(\.\d{1,2})?$/.test(s)) return null;
@@ -510,7 +556,7 @@ function parseRate(str){
 }
 function newId(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);}
 function clone(o){return JSON.parse(JSON.stringify(o));}
-function dispName(a){return a.example?t(a.role==='borrower'?'sampleNameB':'sampleName'):a.name;}
+function dispName(a){return a.name;}
 
 /* ---------- state ---------- */
 var S={rev:0,lang:'en',mode:'lender',accounts:[],act:{lender:null,borrower:null}};
@@ -520,22 +566,13 @@ var pendingDel=null;
 var pendingRestore=false;
 var pendingPerson=false;
 
-/* Internally "lent" means principal added and "received" means a payment, in both modes.
-   In Customer mode they are shown as "I borrowed" and "I paid back". */
-function sampleState(){
-  var a=newId(), b=newId();
-  return {rev:0,lang:'en',mode:'lender',act:{lender:a,borrower:b},accounts:[
-    {id:a,name:'Sample: Ramesh',example:true,role:'lender',alloc:'interest',lastRate:2,lastUnit:'month',entries:[
-      {id:newId(),date:'2026-08-01',type:'lent',amt:5000000,rate:2,unit:'month',note:''},
-      {id:newId(),date:'2026-09-15',type:'received',amt:500000,note:''},
-      {id:newId(),date:'2026-10-20',type:'lent',amt:2000000,rate:3,unit:'month',note:''}
-    ]},
-    {id:b,name:'Sample: Sunil',example:true,role:'borrower',alloc:'interest',lastRate:2,lastUnit:'month',entries:[
-      {id:newId(),date:'2026-09-01',type:'lent',amt:3000000,rate:2,unit:'month',note:''},
-      {id:newId(),date:'2026-10-15',type:'received',amt:1000000,note:''}
-    ]}
-  ]};
-}
+/* Earlier versions added two sample people. If they are still untouched, they are dropped. */
+var SAMPLE_SIGS=[
+ '2026-08-01|lent|5000000,2026-09-15|received|500000,2026-10-20|lent|2000000',
+ '2026-09-01|lent|3000000,2026-10-15|received|1000000'
+];
+function sigOf(acc){return acc.entries.map(function(e){return e.date+'|'+e.type+'|'+e.amt;}).join(',');}
+
 function normalize(d){
   if(!d||typeof d!=='object'||!Array.isArray(d.accounts)) return null;
   var out={rev:Number(d.rev)||0,lang:d.lang==='hi'?'hi':'en',mode:d.mode==='borrower'?'borrower':'lender',
@@ -543,17 +580,15 @@ function normalize(d){
   d.accounts.forEach(function(a){
     if(!a||!Array.isArray(a.entries)) return;
     /* older versions kept one rate per person; it becomes the rate of each loan that has none */
-    var oldRate=isFinite(Number(a.ratePct))&&Number(a.ratePct)>=0&&a.ratePct!==null&&a.ratePct!==''?Number(a.ratePct):2;
+    var oldRate=isFinite(Number(a.ratePct))&&Number(a.ratePct)>=0&&a.ratePct!==null&&a.ratePct!==''?Number(a.ratePct):0;
     var oldUnit=a.rateUnit==='year'?'year':'month';
     var acc={
       id:String(a.id||newId()),name:String(a.name||'Unnamed').slice(0,60),
       role:a.role==='borrower'?'borrower':'lender',
       alloc:a.alloc==='principal'?'principal':'interest',
-      lastRate:isFinite(Number(a.lastRate))&&a.lastRate!==null&&a.lastRate!==''?Number(a.lastRate):oldRate,
       lastUnit:(a.lastUnit||oldUnit)==='year'?'year':'month',
       entries:[]
     };
-    if(a.example) acc.example=true;
     a.entries.forEach(function(e){
       if(!e||!validDate(String(e.date))) return;
       var amt=Math.round(Number(e.amt));
@@ -569,6 +604,10 @@ function normalize(d){
       }
       acc.entries.push(ne);
     });
+    if(a.example){
+      if(SAMPLE_SIGS.indexOf(sigOf(acc))>=0) return;
+      acc.name=acc.name.replace(/^(Sample|नमूना): ?/,'');
+    }
     out.accounts.push(acc);
   });
   var picked=(d.act&&typeof d.act==='object')?d.act:{lender:d.activeId||null,borrower:null};
@@ -596,7 +635,6 @@ function touch(){S.rev++;persistLocal();}
 function applyLang(){
   document.documentElement.lang=LANG==='hi'?'hi':'en';
   Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'),function(el){el.textContent=tm(el.getAttribute('data-i18n'));});
-  Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-ph]'),function(el){el.placeholder=tm(el.getAttribute('data-i18n-ph'));});
   Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-aria]'),function(el){el.setAttribute('aria-label',tm(el.getAttribute('data-i18n-aria')));});
   Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===LANG?'true':'false');});
   document.documentElement.setAttribute('data-mode',S.mode);
@@ -626,7 +664,7 @@ function renderAccountBar(){
   var none=list.length===0;
   sel.disabled=none;
   $('empty').hidden=!none;
-  $('empty').textContent=tm('emptyMsg');
+  $('emptyMsg').textContent=tm('emptyMsg');
   $('main').hidden=none;
   if(none) $('newPerson').hidden=false;
 }
@@ -639,7 +677,7 @@ function renderSummary(){
   } else {
     label=tm('totalDue',{date:fmtDate(asOf)}); big=inr(c.due);
   }
-  var h='<div class="hero"><div class="lbl">'+esc(dispName(acc))+' · '+esc(label)+'</div>'+
+  var h='<div class="hero"><img class="hero-art" src="hero-art.png" alt="" aria-hidden="true"><div class="lbl">'+esc(dispName(acc))+' · '+esc(label)+'</div>'+
     '<div class="big">'+big+'</div>'+
     '<dl class="pi"><div><dt>'+t('principal')+'</dt><dd>'+inr(c.P)+'</dd></div>'+
     '<div><dt>'+t('interestPending')+'</dt><dd>'+inr(c.I)+'</dd></div></dl>'+
@@ -661,19 +699,11 @@ function renderSummary(){
   }
   $('summary').innerHTML=h;
 }
-function gapHtml(g){
-  /* loans with the same rate are shown as one combined line */
-  var groups={},order=[];
-  g.items.forEach(function(it){
-    var k=it.rate+'|'+it.unit;
-    if(!groups[k]){groups[k]={days:it.days,base:0,perDay:0,interest:0,rate:it.rate,unit:it.unit};order.push(k);}
-    var G=groups[k]; G.base+=it.base; G.perDay+=it.perDay; G.interest+=it.interest;
-  });
-  return order.map(function(k){
-    var it=groups[k];
+function periodHtml(list){
+  return list.map(function(g){
     return '<div class="gap">'+t('gap',{
-      n:it.days,days:t(it.days===1?'day':'days'),base:inr(it.base),
-      rate:esc(rateLabel(it.rate,it.unit)),perDay:inrDay(it.perDay),interest:inr(it.interest)
+      from:fmtDate(dayStr(g.from)),to:fmtDate(dayStr(g.to)),period:periodText(g.months,g.days),
+      base:inr(g.base),rate:esc(rateLabel(g.rate,g.unit)),interest:inr(g.interest)
     })+'</div>';
   }).join('');
 }
@@ -684,11 +714,11 @@ function renderLedger(){
   if(!acc.entries.length) html='<li class="empty">'+tm('noEntries')+'</li>';
   c.rows.forEach(function(r){
     var e=r.entry, isL=e.type==='lent';
-    var h='<li class="entry"><div class="rtop"><span class="rdate">'+fmtDate(e.date)+'</span>'+
+    var h='<li class="entry'+(isL?'':' recv')+'"><div class="rtop"><span class="rdate">'+fmtDate(e.date)+'</span>'+
       '<span class="tag '+(isL?'lent':'recv')+'">'+tm(isL?'tagLent':'tagRecv')+'</span>'+
       (isL?'<span class="rate">'+esc(rateLabel(e.rate,e.unit))+'</span>':'')+
       '<span class="amt">'+inr(e.amt)+'</span></div>';
-    if(r.gap) h+=gapHtml(r.gap);
+    if(r.periods&&r.periods.length) h+=periodHtml(r.periods);
     if(!isL){
       var parts=['<div><span>'+t('interestPaid')+'</span> <b>'+inr(r.paidI)+'</b></div>',
                  '<div><span>'+t('principalPaid')+'</span> <b>'+inr(r.paidP)+'</b></div>'];
@@ -703,20 +733,14 @@ function renderLedger(){
     html+=h;
   });
   if(c.rows.length){
-    var tl='<li class="entry"><div class="tail"><div class="rtop"><span class="rdate">'+t('upTo',{date:fmtDate(asOf)})+'</span></div>';
-    tl+=c.tail?gapHtml(c.tail):'<div class="gap">'+t('noNewInterest')+'</div>';
+    var tl='<li class="entry now"><div class="tail"><div class="rtop"><span class="rdate">'+t('upTo',{date:fmtDate(asOf)})+'</span></div>';
+    tl+=c.tail.length?periodHtml(c.tail):'<div class="gap">'+t('noNewInterest')+'</div>';
     tl+='<div class="state"><div><span>'+t('principal')+'</span> <b>'+inr(c.P)+'</b></div><div><span>'+t('interestPending')+'</span> <b>'+inr(c.I)+'</b></div><div><span>'+t('total')+'</span> <b>'+inr(c.due)+'</b></div></div></div></li>';
     html+=tl;
   }
   var hidden=acc.entries.length-c.counted;
   if(hidden>0) html+='<li class="note" style="padding-top:8px">'+(hidden===1?t('notCountedOne',{date:fmtDate(asOf)}):t('notCounted',{n:hidden,date:fmtDate(asOf)}))+'</li>';
   $('ledger').innerHTML=html;
-}
-function renderSampleNote(){
-  var acc=active();
-  $('sampleNote').innerHTML=(acc&&acc.example)
-    ? '<div class="notice"><span>'+t('sampleNote')+'</span><button type="button" class="btn small" data-act="delsample">'+t('delSample')+'</button></div>'
-    : '';
 }
 function loadSettings(){
   var acc=active(); if(!acc) return;
@@ -726,7 +750,7 @@ function loadSettings(){
 function renderAll(){
   renderAccountBar();
   if(!active()) return;
-  renderSampleNote(); renderSummary(); renderLedger(); loadSettings();
+  renderSummary(); renderLedger(); loadSettings();
 }
 
 /* ---------- entry form ---------- */
@@ -736,10 +760,10 @@ function updateFormTexts(){
   $('formTitle').textContent=t(editingId?'editEntry':'addEntry');
   $('btnSave').textContent=t(editingId?'saveChanges':'addEntry');
 }
-function fillRateFromAccount(){
-  var acc=active(); if(!acc) return;
-  $('eRate').value=String(acc.lastRate);
-  $('eUnit').value=acc.lastUnit;
+function clearRateField(){
+  var acc=active();
+  $('eRate').value='';
+  $('eUnit').value=(acc&&acc.lastUnit)||'month';
 }
 function resetForm(keepDate){
   editingId=null;
@@ -747,7 +771,7 @@ function resetForm(keepDate){
   $('eAmt').value=''; $('eNote').value='';
   if(!keepDate) $('eDate').value=todayStr();
   $('formErr').textContent='';
-  fillRateFromAccount();
+  clearRateField();
   updateFormTexts();
   updateRateRow();
 }
@@ -769,7 +793,7 @@ $('entryForm').addEventListener('submit',function(ev){
   }
   $('formErr').textContent='';
   var ne={id:editingId||newId(),date:date,type:type,amt:amt,note:note};
-  if(type==='lent'){ne.rate=rate;ne.unit=unit;acc.lastRate=rate;acc.lastUnit=unit;}
+  if(type==='lent'){ne.rate=rate;ne.unit=unit;acc.lastUnit=unit;}
   if(editingId){
     for(var i=0;i<acc.entries.length;i++){
       if(acc.entries[i].id===editingId){acc.entries[i]=ne;break;}
@@ -815,6 +839,15 @@ $('ledger').addEventListener('click',function(ev){
 Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){
   b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));touch();});
 });
+Array.prototype.forEach.call(document.querySelectorAll('button[data-mode]'),function(b){
+  b.addEventListener('click',function(){
+    var m=b.getAttribute('data-mode')==='borrower'?'borrower':'lender';
+    if(S.mode===m) return;
+    S.mode=m; pendingDel=null;
+    $('newPerson').hidden=true; $('newName').value=''; $('newErr').textContent='';
+    applyLang(); resetForm(false); renderAll(); touch();
+  });
+});
 $('acctSelect').addEventListener('change',function(){
   S.act[S.mode]=$('acctSelect').value; resetForm(false); touch(); renderAll();
 });
@@ -836,7 +869,7 @@ $('btnCancelNew').addEventListener('click',function(){
 function createPerson(){
   var name=$('newName').value.trim();
   if(!name){$('newErr').textContent=t('errName');return;}
-  var a={id:newId(),name:name.slice(0,60),role:S.mode,alloc:'interest',lastRate:2,lastUnit:'month',entries:[]};
+  var a={id:newId(),name:name.slice(0,60),role:S.mode,alloc:'interest',lastUnit:'month',entries:[]};
   S.accounts.push(a); S.act[S.mode]=a.id;
   $('newName').value=''; $('newErr').textContent=''; $('newPerson').hidden=true;
   resetForm(false); touch(); renderAll();
@@ -847,8 +880,8 @@ $('newName').addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.pre
 $('setName').addEventListener('input',function(){
   var acc=active(); if(!acc) return;
   var v=$('setName').value.trim(); if(!v) return;
-  acc.name=v.slice(0,60); acc.example=false; delete acc.example;
-  touch(); renderAccountBar(); renderSummary(); renderSampleNote();
+  acc.name=v.slice(0,60);
+  touch(); renderAccountBar(); renderSummary();
 });
 $('setAlloc').addEventListener('change',function(){
   var acc=active(); if(!acc) return;
@@ -865,19 +898,6 @@ $('btnDelPerson').addEventListener('click',function(){
   if(pendingPerson){removeActive();return;}
   pendingPerson=true; $('btnDelPerson').textContent=t('delPersonConfirm');
   setTimeout(function(){pendingPerson=false;$('btnDelPerson').textContent=t('delPerson');},4000);
-});
-$('sampleNote').addEventListener('click',function(ev){
-  if(ev.target.closest('[data-act=delsample]')) removeActive();
-});
-
-Array.prototype.forEach.call(document.querySelectorAll('button[data-mode]'),function(b){
-  b.addEventListener('click',function(){
-    var m=b.getAttribute('data-mode')==='borrower'?'borrower':'lender';
-    if(S.mode===m) return;
-    S.mode=m; pendingDel=null;
-    $('newPerson').hidden=true; $('newName').value=''; $('newErr').textContent='';
-    applyLang(); resetForm(false); renderAll(); touch();
-  });
 });
 
 /* ---------- backup ---------- */
@@ -935,14 +955,14 @@ $('bkFile').addEventListener('change',function(){
 try{
   var raw=localStorage.getItem(KEY);
   var d0=raw?normalize(JSON.parse(raw)):null;
-  S=d0||sampleState();
-}catch(e){S=sampleState();}
+  S=d0||{rev:0,lang:'en',mode:'lender',accounts:[],act:{lender:null,borrower:null}};
+}catch(e){S={rev:0,lang:'en',mode:'lender',accounts:[],act:{lender:null,borrower:null}};}
 LANG=S.lang==='hi'?'hi':'en';
 $('asOf').value=asOf;
 $('eDate').value=todayStr();
 applyLang();
 renderAll();
-fillRateFromAccount();
+clearRateField();
 updateRateRow();
 setSync('local');
 

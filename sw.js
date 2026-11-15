@@ -1,8 +1,8 @@
 /* Service worker: makes the app open offline.
    Change CACHE_VERSION whenever you edit index.html so phones pick up the new copy. */
-const CACHE_VERSION = 'byaz-v2';
+const CACHE_VERSION = 'byaz-v5';
 const FONT_CACHE = 'byaz-fonts';
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './hero-art.png', './empty-art.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
