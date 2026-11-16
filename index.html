@@ -365,7 +365,7 @@ function compute(acc, asOf){
           if(rest<=0||L.P<=0) return;
           var p=Math.min(rest,L.P);
           L.closed+=span(L.P,L.rate,L.unit,L.from,D).interest;
-          L.from=D+1; L.P-=p; rest-=p; paidP+=p;
+          L.from=D; L.P-=p; rest-=p; paidP+=p;
         });
       };
       if(acc.alloc==='principal'){payPri();payInt();}else{payInt();payPri();}
