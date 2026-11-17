@@ -153,6 +153,16 @@ input.bad{border-color:var(--out)}
 .loan:first-child{border-top:0;padding-top:0}
 details.card summary{cursor:pointer;font-weight:700;font-family:var(--font-head);min-height:28px}
 details.card[open] summary{margin-bottom:12px}
+.alloc{border:0;margin:0;padding:0;min-width:0;display:grid;gap:8px}
+.alloc legend{padding:0;margin-bottom:6px;font-size:13px;color:var(--muted);font-weight:500}
+.chk{position:relative;display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--field);cursor:pointer;color:var(--ink);font-size:15px;font-weight:500}
+.chk input{position:absolute;opacity:0;pointer-events:none}
+.chk .box{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--muted);display:grid;place-items:center}
+.chk .box::after{content:"";width:6px;height:11px;border:solid var(--accent-ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0}
+.chk input:checked+.box{background:var(--accent);border-color:var(--accent)}
+.chk input:checked+.box::after{opacity:1}
+.chk:has(input:checked){border-color:var(--accent);background:var(--out-bg)}
+.chk input:focus-visible+.box{outline:2px solid var(--focus);outline-offset:2px}
 .empty{text-align:center;color:var(--muted);padding:8px 8px 20px;display:grid;justify-items:center;gap:6px}
 .empty img{width:min(280px,84%);height:auto}
 .empty p{margin:0;max-width:30ch}
@@ -239,6 +249,11 @@ details.card[open] summary{margin-bottom:12px}
         </div>
         <p class="hint" data-i18n="rateHelp">Enter the rate for this loan now. It stays with this loan.</p>
       </div>
+      <fieldset id="allocRow" class="alloc" hidden>
+        <legend data-i18n="allocLbl">How should this money be applied?</legend>
+        <label class="chk"><input type="radio" name="alloc" id="aInterest" value="interest" checked><span class="box" aria-hidden="true"></span><span data-i18n="allocInterest">Pay pending interest first, then principal</span></label>
+        <label class="chk"><input type="radio" name="alloc" id="aPrincipal" value="principal"><span class="box" aria-hidden="true"></span><span data-i18n="allocPrincipal">Reduce principal first, then interest</span></label>
+      </fieldset>
       <label class="f" for="eNote"><span data-i18n="note">Note (optional)</span><input id="eNote" type="text" maxlength="120" autocomplete="off"></label>
       <div class="err" id="formErr" role="alert"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -256,12 +271,6 @@ details.card[open] summary{margin-bottom:12px}
       <summary data-i18n="settingsTitle">Name and rules</summary>
       <div class="stack">
         <label class="f" for="setName"><span data-i18n="name">Name</span><input id="setName" type="text" maxlength="60" autocomplete="off"></label>
-        <label class="f" for="setAlloc"><span data-i18n="whenReceived">When money is received</span>
-          <select id="setAlloc">
-            <option value="interest" data-i18n="allocInterest">Pay pending interest first, then principal</option>
-            <option value="principal" data-i18n="allocPrincipal">Reduce principal first, then interest</option>
-          </select>
-        </label>
         <p class="hint" data-i18n="hintOldest">Money received is applied to the oldest loan first. Every loan keeps the rate you set when you lent it.</p>
         <p class="hint" data-i18n="hintSimple">Simple interest.</p>
         <div><button id="btnDelPerson" class="btn danger small" type="button" data-i18n="delPerson">Delete this person</button></div>
@@ -317,23 +326,28 @@ function span(P,rate,unit,from,to){
   var interest=Math.round(P*monthlyRate(rate,unit)*(30*m+days)/3000+1e-6);
   return {months:m,days:days,interest:interest};
 }
-/* Every "lent" entry is its own loan with its own rate. Received money goes to the oldest loan first.
-   Interest is counted through the day of each payment. After a payment reduces the principal,
-   the new principal starts earning from the next day. */
+/* Every "lent" entry is its own loan with its own rate. Every "received" entry says how it is applied
+   (interest first or principal first), and it goes to the oldest loan first.
+   Interest is counted through the payment day. After a payment on a loan, the next period for that
+   loan starts on the payment date itself, so that day is counted in both periods. */
 function compute(acc, asOf){
   var end=dayNum(asOf);
   var list=acc.entries.map(function(e,i){return {e:e,i:i,d:dayNum(e.date)};})
     .filter(function(x){return x.d<=end;})
     .sort(function(a,b){return a.d-b.d||a.i-b.i;});
   var loans=[],credit=0,lent=0,recv=0,rows=[];
-  function accrued(L,day){return L.closed+(L.P>0?span(L.P,L.rate,L.unit,L.from,day).interest:0);}
-  function pending(L,day){return Math.max(0,accrued(L,day)-L.paid);}
-  function pendingAll(day){var s=0;loans.forEach(function(L){s+=pending(L,day);});return s;}
+  /* A period that starts on `day` is not counted yet when skipStart is set, or when a payment restarted it. */
+  function skipped(L,day,skipStart){return L.from===day&&(skipStart||L.rs);}
+  function accrued(L,day,skipStart){
+    return L.closed+((L.P>0&&!skipped(L,day,skipStart))?span(L.P,L.rate,L.unit,L.from,day).interest:0);
+  }
+  function pending(L,day,skipStart){return Math.max(0,accrued(L,day,skipStart)-L.paid);}
+  function pendingAll(day,skipStart){var s=0;loans.forEach(function(L){s+=pending(L,day,skipStart);});return s;}
   function principalAll(){var s=0;loans.forEach(function(L){s+=L.P;});return s;}
-  function periods(day){
+  function periods(day,skipStart){
     var groups={},order=[];
     loans.forEach(function(L){
-      if(L.P<=0) return;
+      if(L.P<=0||skipped(L,day,skipStart)) return;
       var s=span(L.P,L.rate,L.unit,L.from,day);
       if(s.months===0&&s.days===0) return;
       var k=L.from+'|'+L.rate+'|'+L.unit;
@@ -343,45 +357,43 @@ function compute(acc, asOf){
     return order.map(function(k){return groups[k];});
   }
   list.forEach(function(x){
-    var e=x.e,D=x.d,shown=null,paidI=0,paidP=0,extra=0,I;
+    var e=x.e,D=x.d,shown,paidI=0,paidP=0,extra=0,I,al=null;
     if(e.type==='lent'){
+      shown=periods(D,true);
+      I=pendingAll(D,true);
       lent+=e.amt;
       var use=Math.min(credit,e.amt); credit-=use;
-      loans.push({date:e.date,amt:e.amt,rate:e.rate,unit:e.unit,P:e.amt-use,closed:0,paid:0,from:D});
-      I=pendingAll(D-1);
+      loans.push({date:e.date,amt:e.amt,rate:e.rate,unit:e.unit,P:e.amt-use,closed:0,paid:0,from:D,rs:false});
     } else {
       recv+=e.amt;
-      shown=periods(D);
+      al=(e.alloc||acc.alloc)==='principal'?'principal':'interest';
+      shown=periods(D,true);
       var rest=e.amt;
-      var payInt=function(){
-        loans.forEach(function(L){
-          if(rest<=0) return;
-          var p=Math.min(rest,pending(L,D));
-          if(p>0){L.paid+=p;rest-=p;paidI+=p;}
-        });
-      };
-      var payPri=function(){
-        loans.forEach(function(L){
-          if(rest<=0||L.P<=0) return;
-          var p=Math.min(rest,L.P);
-          L.closed+=span(L.P,L.rate,L.unit,L.from,D).interest;
-          L.from=D+1; L.P-=p; rest-=p; paidP+=p;
-        });
-      };
-      if(acc.alloc==='principal'){payPri();payInt();}else{payInt();payPri();}
+      var acc0=loans.map(function(L){return accrued(L,D,true);});
+      var pend=loans.map(function(L,i){return Math.max(0,acc0[i]-L.paid);});
+      var pi=loans.map(function(){return 0;}),pp=loans.map(function(){return 0;});
+      var takeInt=function(){loans.forEach(function(L,i){var p=Math.min(rest,pend[i]-pi[i]);if(p>0){pi[i]+=p;rest-=p;}});};
+      var takePri=function(){loans.forEach(function(L,i){var p=Math.min(rest,L.P-pp[i]);if(p>0){pp[i]+=p;rest-=p;}});};
+      if(al==='principal'){takePri();takeInt();}else{takeInt();takePri();}
+      loans.forEach(function(L,i){
+        if(pi[i]>0||pp[i]>0){
+          L.closed=acc0[i]; L.paid+=pi[i]; L.P-=pp[i]; L.from=D; L.rs=true;
+        }
+        paidI+=pi[i]; paidP+=pp[i];
+      });
       extra=rest; credit+=extra;
-      I=pendingAll(D);
+      I=0; loans.forEach(function(L,i){I+=Math.max(0,acc0[i]-L.paid);});
     }
-    rows.push({entry:e,periods:shown,P:principalAll(),I:I,credit:credit,paidI:paidI,paidP:paidP,extra:extra});
+    rows.push({entry:e,periods:shown,P:principalAll(),I:I,credit:credit,paidI:paidI,paidP:paidP,extra:extra,alloc:al});
   });
-  var tail=periods(end);
-  var P=principalAll(),I=pendingAll(end),earned=0,perDay=0;
+  var tail=periods(end,false);
+  var P=principalAll(),I=pendingAll(end,false),earned=0,perDay=0;
   loans.forEach(function(L){
-    earned+=accrued(L,end);
+    earned+=accrued(L,end,false);
     if(L.P>0) perDay+=L.P*monthlyRate(L.rate,L.unit)/100/30;
   });
   return {rows:rows,tail:tail,P:P,I:I,credit:credit,due:P+I-credit,perDay:perDay,
-    loans:loans.map(function(L){return {date:L.date,amt:L.amt,rate:L.rate,unit:L.unit,P:L.P,I:pending(L,end)};}),
+    loans:loans.map(function(L){return {date:L.date,amt:L.amt,rate:L.rate,unit:L.unit,P:L.P,I:pending(L,end,false)};}),
     lent:lent,recv:recv,earned:earned,counted:list.length};
 }
 /*CALC-END*/
@@ -398,10 +410,11 @@ en:{
  date:'Date',amount:'Amount (₹)',rate:'Interest rate (%)',rateIs:'Rate is',perMonth:'per month',perYear:'per year',
  rateHelp:'Enter the rate for this loan now. It stays with this loan.',
  note:'Note (optional)',saveChanges:'Save changes',cancelEdit:'Cancel edit',
- ledger:'Ledger',settingsTitle:'Name and rules',name:'Name',whenReceived:'When money is received',
- allocInterest:'Pay pending interest first, then principal',allocPrincipal:'Reduce principal first, then interest',
+ ledger:'Ledger',settingsTitle:'Name and rules',name:'Name',
+ allocLbl:'How should this money be applied?',allocInterest:'Pay pending interest first, then principal',allocPrincipal:'Reduce principal first, then interest',
+ ruleUsed:'Rule used: {rule}',ruleInterest:'interest first, then principal',rulePrincipal:'principal first, then interest',
  hintOldest:'Money received is applied to the oldest loan first. Every loan keeps the rate you set when you lent it.',
- hintSimple:'Simple interest only, no interest on interest. Complete months are counted as months, so 2% per month for 12 months is exactly 24%. Days left over are counted as 1/30 of a month each. For a yearly rate, one month is 1/12 of the yearly rate. The first and last day are both counted (1 Nov to 15 Nov = 15 days). Each amount is rounded to the nearest paisa.',
+ hintSimple:'Simple interest only, no interest on interest. Complete months are counted as months, so 2% per month for 12 months is exactly 24%. Days left over are counted as 1/30 of a month each. For a yearly rate, one month is 1/12 of the yearly rate. The first and last day are both counted (1 Nov to 15 Nov = 15 days). After a payment, the next period starts from the payment date. Each amount is rounded to the nearest paisa.',
  delPerson:'Delete this person',delPersonConfirm:'Tap again to delete everything for this person',
  bkTitle:'Backup',bkHint:'Copy this text and keep it somewhere safe (notes, chat with yourself). To restore, paste a backup here and tap Restore.',
  bkAria:'Backup text',copyBk:'Copy backup',downloadBk:'Download backup file',chooseFile:'Load backup file',restoreBk:'Restore from text',close:'Close',
@@ -436,7 +449,7 @@ en:{
  checkLbl_b:'Principal and interest I owe up to',
  lent_b:'I borrowed',received_b:'I paid back',
  rateHelp_b:'Enter the rate agreed for this loan. It stays with this loan.',
- whenReceived_b:'When I pay back',
+ allocLbl_b:'How should this payment be applied?',
  hintOldest_b:'Money you pay back is applied to the oldest loan first. Every loan keeps the rate agreed when you borrowed it.',
  totalDue_b:'Total I owe on {date}',overpaidOn_b:'Paid extra on {date}',
  overpaidSub_b:'You paid more than you owed. This amount is owed back to you.',
@@ -453,10 +466,11 @@ hi:{
  date:'तारीख',amount:'रकम (₹)',rate:'ब्याज रेट (%)',rateIs:'रेट',perMonth:'हर महीने',perYear:'हर साल',
  rateHelp:'इस पैसे का रेट अभी डालें। यह रेट इसी पैसे के साथ रहेगा।',
  note:'नोट (ज़रूरी नहीं)',saveChanges:'सेव करें',cancelEdit:'बदलाव कैंसिल करें',
- ledger:'हिसाब',settingsTitle:'नाम और नियम',name:'नाम',whenReceived:'पैसे मिलने पर',
- allocInterest:'पहले ब्याज काटें, फिर असल',allocPrincipal:'पहले असल काटें, फिर ब्याज',
+ ledger:'हिसाब',settingsTitle:'नाम और नियम',name:'नाम',
+ allocLbl:'यह पैसा पहले कहाँ लगाएँ',allocInterest:'पहले ब्याज काटें, फिर असल',allocPrincipal:'पहले असल काटें, फिर ब्याज',
+ ruleUsed:'नियम: {rule}',ruleInterest:'पहले ब्याज, फिर असल',rulePrincipal:'पहले असल, फिर ब्याज',
  hintOldest:'जो पैसा मिलता है वह सबसे पुराने उधार में पहले लगता है। हर उधार का रेट वही रहता है जो देते समय डाला था।',
- hintSimple:'सिर्फ़ सादा ब्याज, ब्याज पर ब्याज नहीं। पूरे महीने महीने के हिसाब से गिने जाते हैं, जैसे हर महीने 2% पर 12 महीने = 24%। बचे हुए दिन, हर दिन महीने का 1/30 हिस्सा गिना जाता है। साल के रेट पर 1 महीना = साल के रेट का 1/12। पहला और आखिरी दोनों दिन गिने जाते हैं (1 नवंबर से 15 नवंबर = 15 दिन)। हर रकम नज़दीकी पैसे तक गोल की जाती है।',
+ hintSimple:'सिर्फ़ सादा ब्याज, ब्याज पर ब्याज नहीं। पूरे महीने महीने के हिसाब से गिने जाते हैं, जैसे हर महीने 2% पर 12 महीने = 24%। बचे हुए दिन, हर दिन महीने का 1/30 हिस्सा गिना जाता है। साल के रेट पर 1 महीना = साल के रेट का 1/12। पहला और आखिरी दोनों दिन गिने जाते हैं (1 नवंबर से 15 नवंबर = 15 दिन)। पैसा मिलने के बाद अगला हिसाब उसी तारीख से शुरू होता है। हर रकम नज़दीकी पैसे तक गोल की जाती है।',
  delPerson:'यह नाम हटाएँ',delPersonConfirm:'इस नाम का सब कुछ हटाने के लिए फिर दबाएँ',
  bkTitle:'बैकअप',bkHint:'यह टेक्स्ट कॉपी करके कहीं सुरक्षित रख लें (नोट्स में या खुद को भेज दें)। वापस लाने के लिए बैकअप यहाँ पेस्ट करें और “टेक्स्ट से वापस लाएँ” दबाएँ।',
  bkAria:'बैकअप टेक्स्ट',copyBk:'बैकअप कॉपी करें',downloadBk:'बैकअप फ़ाइल डाउनलोड करें',chooseFile:'बैकअप फ़ाइल चुनें',restoreBk:'टेक्स्ट से वापस लाएँ',close:'बंद करें',
@@ -483,7 +497,7 @@ hi:{
  restoreConfirmBtn:'अभी का सारा डेटा बदलने के लिए फिर दबाएँ',
  restoreMsg:'ऐप का सारा डेटा बैकअप के {n} से बदल जाएगा।',restored:'वापस आ गया।',
  personsOne:'1 नाम',personsMany:'{n} नाम',
- modeAria:'मोड',modeLender:'देने वाला',modeBorrower:'लेने वाला',
+ modeAria:'मोड',modeLender:'लेंडर',modeBorrower:'ग्राहक',
  modeHint:'आपने दूसरों को पैसे दिए हैं और आपको ब्याज मिलता है।',
  modeHint_b:'आपने किसी से पैसे लिए हैं और आपको ब्याज देना है।',
  person_b:'किससे पैसे लिए',newNameLbl_b:'जिससे पैसे लिए उसका नाम',
@@ -491,7 +505,7 @@ hi:{
  checkLbl_b:'इस तारीख तक मुझे असल और ब्याज देना है',
  lent_b:'मैंने लिया',received_b:'मैंने चुकाया',
  rateHelp_b:'जो रेट तय हुआ वह डालें। यह रेट इसी पैसे के साथ रहेगा।',
- whenReceived_b:'जब मैं चुकाता हूँ',
+ allocLbl_b:'यह भुगतान पहले कहाँ लगाएँ',
  hintOldest_b:'आप जो पैसा चुकाते हैं वह सबसे पुराने उधार में पहले लगता है। हर उधार का रेट वही रहता है जो लेते समय तय हुआ था।',
  totalDue_b:'{date} तक मुझे कुल देना है',overpaidOn_b:'{date} तक ज़्यादा चुकाया',
  overpaidSub_b:'आपने बाकी से ज़्यादा चुका दिया है। यह रकम आपको वापस मिलनी है।',
@@ -586,6 +600,7 @@ function normalize(d){
       id:String(a.id||newId()),name:String(a.name||'Unnamed').slice(0,60),
       role:a.role==='borrower'?'borrower':'lender',
       alloc:a.alloc==='principal'?'principal':'interest',
+      lastAlloc:(a.lastAlloc||a.alloc)==='principal'?'principal':'interest',
       lastUnit:(a.lastUnit||oldUnit)==='year'?'year':'month',
       entries:[]
     };
@@ -602,6 +617,7 @@ function normalize(d){
         ne.rate=(e.rate!==undefined&&e.rate!==null&&e.rate!==''&&isFinite(r)&&r>=0)?r:oldRate;
         ne.unit=(e.unit||oldUnit)==='year'?'year':'month';
       }
+      else ne.alloc=(e.alloc||a.alloc)==='principal'?'principal':'interest';
       acc.entries.push(ne);
     });
     if(a.example){
@@ -724,6 +740,7 @@ function renderLedger(){
                  '<div><span>'+t('principalPaid')+'</span> <b>'+inr(r.paidP)+'</b></div>'];
       if(r.extra>0) parts.push('<div><span>'+t('extraPaid')+'</span> <b>'+inr(r.extra)+'</b></div>');
       h+='<div class="state">'+parts.join('')+'</div>';
+      h+='<div class="gap">'+t('ruleUsed',{rule:'<b>'+t(r.alloc==='principal'?'rulePrincipal':'ruleInterest')+'</b>'})+'</div>';
     }
     h+='<div class="state"><div><span>'+t('principalNow')+'</span> <b>'+inr(r.P)+'</b></div><div><span>'+t('interestPending')+'</span> <b>'+inr(r.I)+'</b></div></div>';
     if(e.note) h+='<div class="note">'+esc(e.note)+'</div>';
@@ -745,7 +762,6 @@ function renderLedger(){
 function loadSettings(){
   var acc=active(); if(!acc) return;
   $('setName').value=dispName(acc);
-  $('setAlloc').value=acc.alloc;
 }
 function renderAll(){
   renderAccountBar();
@@ -755,7 +771,8 @@ function renderAll(){
 
 /* ---------- entry form ---------- */
 function isLentSelected(){return document.getElementById('tLent').checked;}
-function updateRateRow(){$('rateRow').hidden=!isLentSelected();}
+function updateRateRow(){$('rateRow').hidden=!isLentSelected();$('allocRow').hidden=isLentSelected();}
+function setAllocRadios(v){$('aPrincipal').checked=(v==='principal');$('aInterest').checked=(v!=='principal');}
 function updateFormTexts(){
   $('formTitle').textContent=t(editingId?'editEntry':'addEntry');
   $('btnSave').textContent=t(editingId?'saveChanges':'addEntry');
@@ -764,6 +781,7 @@ function clearRateField(){
   var acc=active();
   $('eRate').value='';
   $('eUnit').value=(acc&&acc.lastUnit)||'month';
+  setAllocRadios((acc&&acc.lastAlloc)||'interest');
 }
 function resetForm(keepDate){
   editingId=null;
@@ -794,6 +812,7 @@ $('entryForm').addEventListener('submit',function(ev){
   $('formErr').textContent='';
   var ne={id:editingId||newId(),date:date,type:type,amt:amt,note:note};
   if(type==='lent'){ne.rate=rate;ne.unit=unit;acc.lastUnit=unit;}
+  else{ne.alloc=$('aPrincipal').checked?'principal':'interest';acc.lastAlloc=ne.alloc;}
   if(editingId){
     for(var i=0;i<acc.entries.length;i++){
       if(acc.entries[i].id===editingId){acc.entries[i]=ne;break;}
@@ -818,6 +837,7 @@ $('ledger').addEventListener('click',function(ev){
     $('eAmt').value=(e.amt/100).toFixed(2).replace(/\.00$/,'');
     $('eNote').value=e.note||'';
     if(e.type==='lent'){$('eRate').value=String(e.rate);$('eUnit').value=e.unit;}
+    else setAllocRadios(e.alloc);
     $('btnCancelEdit').hidden=false;
     $('formErr').textContent='';
     updateFormTexts(); updateRateRow();
@@ -869,7 +889,7 @@ $('btnCancelNew').addEventListener('click',function(){
 function createPerson(){
   var name=$('newName').value.trim();
   if(!name){$('newErr').textContent=t('errName');return;}
-  var a={id:newId(),name:name.slice(0,60),role:S.mode,alloc:'interest',lastUnit:'month',entries:[]};
+  var a={id:newId(),name:name.slice(0,60),role:S.mode,lastAlloc:'interest',lastUnit:'month',entries:[]};
   S.accounts.push(a); S.act[S.mode]=a.id;
   $('newName').value=''; $('newErr').textContent=''; $('newPerson').hidden=true;
   resetForm(false); touch(); renderAll();
@@ -882,10 +902,6 @@ $('setName').addEventListener('input',function(){
   var v=$('setName').value.trim(); if(!v) return;
   acc.name=v.slice(0,60);
   touch(); renderAccountBar(); renderSummary();
-});
-$('setAlloc').addEventListener('change',function(){
-  var acc=active(); if(!acc) return;
-  acc.alloc=$('setAlloc').value; touch(); renderSummary(); renderLedger();
 });
 function removeActive(){
   var acc=active(); if(!acc) return;
